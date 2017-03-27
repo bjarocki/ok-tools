@@ -54,7 +54,7 @@ def notify():
           'color': '#4cc0b5',
           'footer_icon': 'https://internal-ops.otwarte.xyz/rocket.png',
           'footer': 'otwarte_klatki',
-          'text': os.environ.get('DRONE_COMMIT_MESSAGE'),
+          'text': "{0}\n\n<{1}|commit link>".format(os.environ.get('DRONE_COMMIT_MESSAGE'), os.environ.get('DRONE_COMMIT_LINK')),
           'thumb_url': 'https://internal-ops.otwarte.xyz/ok-logo.png',
           'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
           'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
