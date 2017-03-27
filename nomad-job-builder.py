@@ -50,12 +50,19 @@ def notify():
       'channel': slack_channel,
       'attachments': [
         {
+          'color': '#4cc0b5',
           'text': os.environ.get('DRONE_COMMIT_MESSAGE'),
           'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
           'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
         }
       ]
     }
+
+    author_avatar = os.environ.get('DRONE_COMMIT_AUTHOR_AVATAR')
+
+    # let's add personal touch here
+    if author_avatar:
+        message['author_icon'] = author_avatar
 
     r = requests.post(slack_url, json=message)
 
