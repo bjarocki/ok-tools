@@ -62,7 +62,7 @@ def notify():
 
     # let's add personal touch here
     if author_avatar:
-        message['author_icon'] = author_avatar
+        message['attachments']['author_icon'] = author_avatar
 
     r = requests.post(slack_url, json=message)
 
