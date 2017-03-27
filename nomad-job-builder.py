@@ -52,11 +52,12 @@ def notify():
       'attachments': [
         {
           'color': '#4cc0b5',
+          'footer_icon': 'https://internal-ops.otwarte.xyz/rocket.png',
+          'footer': 'otwarte_klatki',
           'text': os.environ.get('DRONE_COMMIT_MESSAGE'),
+          'thumb_url': 'https://internal-ops.otwarte.xyz/ok-logo.png',
           'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
           'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
-          'footer': 'otwarte_klatki',
-          'footer_icon': 'https://internal-ops.otwarte.xyz/logo.png',
           'ts': int(time())
         }
       ]
