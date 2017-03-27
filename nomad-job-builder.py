@@ -39,6 +39,29 @@ def sanity_check(variables):
         return False
 
 
+def notify():
+    slack_url = os.environ.get('SLACK_URL')
+    slack_channel = os.environ.get('SLACK_CHANNEL') or '#tech-ops'
+
+    if not slack_url:
+        return False
+
+    message = {
+      'channel': slack_channel,
+      'attachments': [
+        {
+          'text': os.environ.get('DRONE_COMMIT_MESSAGE'),
+          'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
+          'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
+        }
+      ]
+    }
+
+    r = requests.post(slack_url, json=message)
+
+    return r.status_code == 200
+
+
 def docker_image():
     repo_name = os.environ.get('DRONE_REPO_NAME')
     commit_sha = os.environ.get('DRONE_COMMIT')
@@ -122,3 +145,5 @@ if __name__ == '__main__':
 
     if r.status_code != 200:
         sys.exit(1)
+
+    notify()
