@@ -27,7 +27,7 @@ EXPECTED_ENVIRONMENT_VARIABLES = [
 
 CONFIGURATION_FILE = '.repository-settings.yml'
 DOCKER_REPOSITORY_HOST = 'docker-registry.otwarte.xyz'
-NOMAD_URL = 'https://nomad.otwarte.xyz/v1/jobs'
+NOMAD_URL = os.environ.get('NOMAD_URL') or 'https://nomad.otwarte.xyz/v1/jobs'
 
 
 def sanity_check(variables):
