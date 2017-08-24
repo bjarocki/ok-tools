@@ -26,7 +26,7 @@ EXPECTED_ENVIRONMENT_VARIABLES = [
 ]
 
 CONFIGURATION_FILE = '.repository-settings.yml'
-DOCKER_REPOSITORY_HOST = 'docker-registry.otwarte.xyz'
+DOCKER_REPOSITORY_HOST = os.environ.get('DOCKER_REPOSITORY_HOST') or 'docker-registry.otwarte.xyz'
 NOMAD_URL = os.environ.get('NOMAD_URL') or 'https://nomad.otwarte.xyz/v1/jobs'
 
 
