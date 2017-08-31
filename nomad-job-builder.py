@@ -4,6 +4,7 @@ import yaml
 import json
 import os
 import sys
+import re
 import requests
 from base64 import decodestring
 from jinja2 import Template
@@ -111,7 +112,7 @@ def application_tags(configuration):
 
 
 def core_variables(defaults, configuration):
-    defaults['SERVICE_NAME'] = os.environ.get('DRONE_REPO_NAME')
+    defaults['SERVICE_NAME'] = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
     defaults['APPLICATION_PORT'] = application_port(configuration)
     defaults['APPLICATION_TAGS'] = application_tags(configuration)
     defaults['DOCKER_IMAGE'] = docker_image()
