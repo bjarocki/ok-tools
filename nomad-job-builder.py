@@ -35,6 +35,7 @@ def sanity_check(variables):
     try:
         for vname in variables:
             if not os.environ.get(vname):
+                print('missing secret : {0}'.format(vname))
                 return False
 
         return True
