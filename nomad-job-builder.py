@@ -114,12 +114,13 @@ def application_tags(configuration):
 
 def core_variables(defaults, configuration):
     defaults['SERVICE_NAME'] = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
+    defaults['SERVICE_ID'] = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
 
     # build branch prefixed service if DRONE_BRANCH_SERVICE env
     if os.environ.get('DRONE_BRANCH_SERVICE'):
         defaults['SERVICE_NAME'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_BRANCH')), defaults['SERVICE_NAME'])
+        defaults['SERVICE_ID'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_BRANCH')), defaults['SERVICE_ID'])
 
-    defaults['SERVICE_ID'] = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
     defaults['APPLICATION_PORT'] = application_port(configuration)
     defaults['APPLICATION_TAGS'] = application_tags(configuration)
     defaults['DOCKER_IMAGE'] = docker_image()
