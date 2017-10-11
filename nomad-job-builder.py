@@ -127,10 +127,6 @@ def core_variables(defaults, configuration):
 
 
 if __name__ == '__main__':
-    # ugly debugging
-    for k in os.environ:
-        print('{0}={1}'.format(k, os.environ.get(k)))
-
     # die if missing configuration file
     if not os.path.exists(CONFIGURATION_FILE):
         sys.exit(1)
