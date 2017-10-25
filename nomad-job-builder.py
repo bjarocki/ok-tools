@@ -112,11 +112,6 @@ def application_tags(configuration):
         sys.exit(1)
 
 
-def die_with_reason(reason):
-    print(reason)
-    sys.exit(1)
-
-
 def core_variables(defaults, configuration):
     service_name = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
     service_id = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
@@ -132,7 +127,7 @@ def core_variables(defaults, configuration):
 if __name__ == '__main__':
     # die if missing configuration file
     if not os.path.exists(CONFIGURATION_FILE):
-        die_with_reason('Missing configuration file [{0}]'.format(CONFIGURATION_FILE))
+        sys.exit('Missing configuration file [{0}]'.format(CONFIGURATION_FILE))
 
     # get configuration
     with open(CONFIGURATION_FILE) as fp:
