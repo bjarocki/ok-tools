@@ -111,13 +111,16 @@ def application_tags(configuration):
     except:
         sys.exit(1)
 
+def branch_name():
+    return os.environ.get('DRONE_REPO_BRANCH') or os.environ.get('DRONE_BRANCH')
+
 
 def core_variables(defaults, configuration):
     service_name = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
     service_id = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
 
-    defaults['SERVICE_NAME'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_BRANCH')), service_name)
-    defaults['SERVICE_ID'] = '{0}_{1}'.format(re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_BRANCH')), service_id)
+    defaults['SERVICE_NAME'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', branch_name()), service_name)
+    defaults['SERVICE_ID'] = '{0}_{1}'.format(re.sub('[^0-9a-zA-Z]+', '_', branch_name()), service_id)
 
     defaults['APPLICATION_PORT'] = application_port(configuration)
     defaults['APPLICATION_TAGS'] = application_tags(configuration)
