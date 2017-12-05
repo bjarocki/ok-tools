@@ -10,12 +10,104 @@ from base64 import decodestring
 from jinja2 import Template
 from time import time
 
-# this is a Jinja2 template packed with base64
-NOMAD_JOB_JINJA_TEMPLATE_BASE64 = "ewogICJKb2IiOiB7CiAgICAiQWxsQXRPbmNlIjogZmFsc2UsCiAgICAiQ29uc3RyYWludHMiOiBudWxsLAogICAgIkNyZWF0ZUluZGV4IjogNDE5MiwKICAgICJEYXRhY2VudGVycyI6IFsKICAgICAgImRjMSIKICAgIF0sCiAgICAiSUQiOiAie3tTRVJWSUNFX0lEfX0iLAogICAgIk1ldGEiOiBudWxsLAogICAgIk5hbWUiOiAie3tTRVJWSUNFX05BTUV9fSIsCiAgICAiUGFyYW1ldGVyaXplZEpvYiI6IG51bGwsCiAgICAiUGFyZW50SUQiOiAiIiwKICAgICJQYXlsb2FkIjogbnVsbCwKICAgICJQZXJpb2RpYyI6IG51bGwsCiAgICAiUHJpb3JpdHkiOiA1MCwKICAgICJSZWdpb24iOiAiZ2xvYmFsIiwKICAgICJTdGF0dXMiOiAicnVubmluZyIsCiAgICAiU3RhdHVzRGVzY3JpcHRpb24iOiAiIiwKICAgICJUYXNrR3JvdXBzIjogWwogICAgICB7CiAgICAgICAgIkNvbnN0cmFpbnRzIjogbnVsbCwKICAgICAgICAiQ291bnQiOiB7e0NPTlRBSU5FUlN9fSwKICAgICAgICAiTWV0YSI6IG51bGwsCiAgICAgICAgIk5hbWUiOiAie3tTRVJWSUNFX05BTUV9fSIsCiAgICAgICAgIlJlc3RhcnRQb2xpY3kiOiB7CiAgICAgICAgICAiQXR0ZW1wdHMiOiAxMCwKICAgICAgICAgICJEZWxheSI6IDI1MDAwMDAwMDAwLAogICAgICAgICAgIkludGVydmFsIjogMzAwMDAwMDAwMDAwLAogICAgICAgICAgIk1vZGUiOiAiZGVsYXkiCiAgICAgICAgfSwKICAgICAgICAiVGFza3MiOiBbCiAgICAgICAgICB7CiAgICAgICAgICAgICJBcnRpZmFjdHMiOiBbXSwKICAgICAgICAgICAgIkNvbmZpZyI6IHsKICAgICAgICAgICAgICAiaW1hZ2UiOiAie3tET0NLRVJfSU1BR0V9fSIsCiAgICAgICAgICAgICAgInBvcnRfbWFwIjogWwogICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAicG9ydCI6IHt7QVBQTElDQVRJT05fUE9SVH19CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgXQogICAgICAgICAgICAgIHslIGlmIFZPTFVNRVMgaXMgZGVmaW5lZCAlfQogICAgICAgICAgICAgICAgLCJ2b2x1bWVzIiA6IFsKICAgICAgICAgICAgICAgIHslIGZvciB2IGluIFZPTFVNRVMgJX0ie3sgdiB9fSJ7JSBpZiBub3QgbG9vcC5sYXN0ICV9LHslIGVuZGlmICV9CiAgICAgICAgICAgICAgICB7JSBlbmRmb3IgJX0KICAgICAgICAgICAgICB7JSBlbmRpZiAlfQogICAgICAgICAgICB9LAogICAgICAgICAgICAiQ29uc3RyYWludHMiOiBudWxsLAogICAgICAgICAgICAiRGlzcGF0Y2hQYXlsb2FkIjogbnVsbCwKICAgICAgICAgICAgIkRyaXZlciI6ICJkb2NrZXIiLAogICAgICAgICAgICB7JSBpZiBWQVJJQUJMRVMgaXMgZGVmaW5lZCAlfQogICAgICAgICAgICAgICJFbnYiOiB7CiAgICAgICAgICAgICAgICB7JSBmb3Iga2V5LCB2YWx1ZSBpbiBWQVJJQUJMRVMuaXRlcml0ZW1zKCkgJX0ie3trZXl9fSI6ICJ7e3ZhbHVlfX0ieyUgaWYgbm90IGxvb3AubGFzdCAlfSx7JSBlbmRpZiAlfQogICAgICAgICAgICAgICAgeyUgZW5kZm9yICV9CiAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgeyUgZW5kaWYgJX0KICAgICAgICAgICAgIktpbGxUaW1lb3V0IjogNTAwMDAwMDAwMCwKICAgICAgICAgICAgIkxlYWRlciI6IGZhbHNlLAogICAgICAgICAgICAiTG9nQ29uZmlnIjogewogICAgICAgICAgICAgICJNYXhGaWxlU2l6ZU1CIjogMTAsCiAgICAgICAgICAgICAgIk1heEZpbGVzIjogMTAKICAgICAgICAgICAgfSwKICAgICAgICAgICAgIk1ldGEiOiBudWxsLAogICAgICAgICAgICAiTmFtZSI6ICJ7e1NFUlZJQ0VfTkFNRX19IiwKICAgICAgICAgICAgIlJlc291cmNlcyI6IHsKICAgICAgICAgICAgICAiQ1BVIjoge3tDUFV9fSwKICAgICAgICAgICAgICAiRGlza01CIjoge3tESVNLX1NJWkV9fSwKICAgICAgICAgICAgICAiSU9QUyI6IDAsCiAgICAgICAgICAgICAgIk1lbW9yeU1CIjoge3tSQU19fSwKICAgICAgICAgICAgICAiTmV0d29ya3MiOiBbCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICJDSURSIjogIiIsCiAgICAgICAgICAgICAgICAgICJEeW5hbWljUG9ydHMiOiBbCiAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgIkxhYmVsIjogInBvcnQiLAogICAgICAgICAgICAgICAgICAgICAgIlZhbHVlIjogMAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgXSwKICAgICAgICAgICAgICAgICAgIklQIjogIiIsCiAgICAgICAgICAgICAgICAgICJNQml0cyI6IDEsCiAgICAgICAgICAgICAgICAgICJQdWJsaWMiOiBmYWxzZSwKICAgICAgICAgICAgICAgICAgIlJlc2VydmVkUG9ydHMiOiBudWxsCiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgXQogICAgICAgICAgICB9LAogICAgICAgICAgICAiU2VydmljZXMiOiBbCiAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgIkNoZWNrcyI6IFsKICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICJBcmdzIjogbnVsbCwKICAgICAgICAgICAgICAgICAgICAiQ29tbWFuZCI6ICIiLAogICAgICAgICAgICAgICAgICAgICJJZCI6ICIiLAogICAgICAgICAgICAgICAgICAgICJJbml0aWFsU3RhdHVzIjogIiIsCiAgICAgICAgICAgICAgICAgICAgIkludGVydmFsIjogMTAwMDAwMDAwMDAsCiAgICAgICAgICAgICAgICAgICAgIk5hbWUiOiAiYWxpdmUiLAogICAgICAgICAgICAgICAgICAgICJQYXRoIjogIiIsCiAgICAgICAgICAgICAgICAgICAgIlBvcnRMYWJlbCI6ICIiLAogICAgICAgICAgICAgICAgICAgICJQcm90b2NvbCI6ICIiLAogICAgICAgICAgICAgICAgICAgICJUaW1lb3V0IjogMjAwMDAwMDAwMCwKICAgICAgICAgICAgICAgICAgICAiVHlwZSI6ICJ0Y3AiCiAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIF0sCiAgICAgICAgICAgICAgICAiSWQiOiAiIiwKICAgICAgICAgICAgICAgICJOYW1lIjogInt7U0VSVklDRV9OQU1FfX0iLAogICAgICAgICAgICAgICAgIlBvcnRMYWJlbCI6ICJwb3J0IiwKICAgICAgICAgICAgICB7JSBpZiBBUFBMSUNBVElPTl9UQUdTIGlzIGRlZmluZWQgJX0KICAgICAgICAgICAgICAgICJUYWdzIjogWwogICAgICAgICAgICAgICAgeyUgZm9yIHRhZyBpbiBBUFBMSUNBVElPTl9UQUdTICV9Int7dGFnfX0ieyUgaWYgbm90IGxvb3AubGFzdCAlfSx7JSBlbmRpZiAlfQogICAgICAgICAgICAgICAgeyUgZW5kZm9yICV9CiAgICAgICAgICAgICAgIF0KICAgICAgICAgICAgICB7JSBlbmRpZiAlfQogICAgICAgICAgICAgIH0KICAgICAgICAgICAgXSwKICAgICAgICAgICAgIlRlbXBsYXRlcyI6IFtdLAogICAgICAgICAgICAiVXNlciI6ICIiLAogICAgICAgICAgICAiVmF1bHQiOiBudWxsCiAgICAgICAgICB9CiAgICAgICAgXQogICAgICB9CiAgICBdLAogICAgIlR5cGUiOiAic2VydmljZSIsCiAgICAiVXBkYXRlIjogewogICAgICAiTWF4UGFyYWxsZWwiOiAxLAogICAgICAiU3RhZ2dlciI6IDEwMDAwMDAwMDAwCiAgICB9LAogICAgIlZhdWx0VG9rZW4iOiAiIgogIH0KfQo="
+# a Nomad Job Jinja2 template.
+NOMAD_JOB_JINJA_TEMPLATE = """
+{
+  "Job": {
+    "Datacenters": [
+      "dc1"
+    ],
+    "ID": "{{SERVICE_ID}}",
+    "Name": "{{SERVICE_NAME}}",
+    "TaskGroups": [
+      {
+        "Count": {{CONTAINERS}},
+        "Name": "{{SERVICE_NAME}}",
+        "RestartPolicy": {
+          "Attempts": 10,
+          "Interval": 300000000000,
+          "Delay": 10000000000,
+          "Mode": "delay"
+        },
+        "Tasks": [
+          {
+            "Config": {
+              "image": "{{DOCKER_IMAGE}}",
+              "port_map": [
+                {
+                  "port": {{APPLICATION_PORT}}
+                }
+              ]
+              {% if VOLUMES is defined %}
+                ,"volumes" : [
+                {% for v in VOLUMES %}"{{ v }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+              {% endif %}
+            },
+            "Driver": "docker",
+            {% if VARIABLES is defined %}
+              "Env": {
+                {% for key, value in VARIABLES.iteritems() %}"{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+               },
+              {% endif %}
+            "LogConfig": {
+              "MaxFileSizeMB": 10,
+              "MaxFiles": 10
+            },
+            "Name": "{{SERVICE_NAME}}",
+            "Resources": {
+              "CPU": {{CPU}},
+              "DiskMB": {{DISK_SIZE}},
+              "MemoryMB": {{RAM}},
+              "Networks": [
+                {
+                  "DynamicPorts": [
+                    {
+                      "Label": "port",
+                      "Value": 0
+                    }
+                  ],
+                  "MBits": 1
+                }
+              ]
+            },
+            "Services": [
+              {
+                "Checks": [
+                  {
+                    "Interval": 10000000000,
+                    "Name": "alive",
+                    "Timeout": 5000000000,
+                    "Type": "tcp"
+                  }
+                ],
+                "Name": "{{SERVICE_NAME}}",
+                "PortLabel": "port",
+              {% if APPLICATION_TAGS is defined %}
+                "Tags": [
+                {% for tag in APPLICATION_TAGS %}"{{tag}}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+               ]
+              {% endif %}
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Type": "service",
+    "Update": {
+      "MaxParallel": 1,
+      "Stagger": 10000000000
+    }
+  }
+}
+"""
 
 JOB_DEFAULTS = {
-  'CPU': 512,
-  'RAM': 512,
+  'CPU': 256,
+  'RAM': 256,
   'DISK_SIZE': 500,
   'CONTAINERS': 1,
   'VARIABLES': {}
@@ -145,9 +237,6 @@ if __name__ == '__main__':
     # make a sanity check
     sanity_check(EXPECTED_ENVIRONMENT_VARIABLES + secrets) or sys.exit(1)
 
-    # unpack jinja template
-    job_template = decodestring(NOMAD_JOB_JINJA_TEMPLATE_BASE64)
-
     # populate configuration variables
     core_variables(JOB_DEFAULTS, configuration)
 
@@ -155,7 +244,7 @@ if __name__ == '__main__':
     environment_variables(JOB_DEFAULTS, secrets)
 
     # prepare template
-    template = Template(job_template)
+    template = Template(NOMAD_JOB_JINJA_TEMPLATE)
 
     # render final nomad json job
     nomad_job = template.render(JOB_DEFAULTS)
