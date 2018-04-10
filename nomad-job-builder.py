@@ -204,7 +204,7 @@ def application_tags(configuration):
         sys.exit(1)
 
 def branch_name():
-    return os.environ.get('DRONE_REPO_BRANCH') or os.environ.get('DRONE_BRANCH')
+    return os.environ.get('DRONE_BRANCH') or sys.exit('Missing DRONE_BRANCH environment variable')
 
 
 def core_variables(defaults, configuration):
