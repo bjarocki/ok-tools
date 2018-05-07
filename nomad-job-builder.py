@@ -6,7 +6,6 @@ import os
 import sys
 import re
 import requests
-from base64 import decodestring
 from jinja2 import Template
 from time import time
 
@@ -40,8 +39,9 @@ NOMAD_JOB_JINJA_TEMPLATE = """
               ]
               {% if VOLUMES is defined %}
                 ,"volumes" : [
-                {% for v in VOLUMES %}"{{ v }}"{% if not loop.last %},{% endif %}
+                {% for v in VOLUMES %}"/srv/docker/storage/{{SERVICE_NAME}}/{{ v.name }}:{{ v.path }}"{% if not loop.last %},{% endif %}
                 {% endfor %}
+                ]
               {% endif %}
             },
             "Driver": "docker",
@@ -50,7 +50,7 @@ NOMAD_JOB_JINJA_TEMPLATE = """
                 {% for key, value in VARIABLES.iteritems() %}"{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
                 {% endfor %}
                },
-              {% endif %}
+            {% endif %}
             "LogConfig": {
               "MaxFileSizeMB": 10,
               "MaxFiles": 10
@@ -110,7 +110,8 @@ JOB_DEFAULTS = {
   'RAM': 512,
   'DISK_SIZE': 500,
   'CONTAINERS': 1,
-  'VARIABLES': {}
+  'VARIABLES': {},
+  'VOLUMES': {}
 }
 
 EXPECTED_ENVIRONMENT_VARIABLES = [
@@ -203,6 +204,12 @@ def application_tags(configuration):
     except:
         sys.exit(1)
 
+def application_volumes(configuration):
+    try:
+        return configuration.get('deployment').get('nomad').get('volumes') or []
+    except:
+        return []
+
 def branch_name():
     return os.environ.get('DRONE_BRANCH') or sys.exit('Missing DRONE_BRANCH environment variable')
 
@@ -217,6 +224,7 @@ def core_variables(defaults, configuration):
     defaults['APPLICATION_PORT'] = application_port(configuration)
     defaults['APPLICATION_TAGS'] = application_tags(configuration)
     defaults['DOCKER_IMAGE'] = docker_image()
+    defaults['VOLUMES'] = application_volumes(configuration)
 
 
 if __name__ == '__main__':
