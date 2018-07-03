@@ -262,6 +262,9 @@ if __name__ == '__main__':
     # render final nomad json job
     nomad_job = template.render(JOB_DEFAULTS)
 
+    # [debug] job content
+    print(nomad_job)
+
     # verify if json is valid
     try:
         parsed_job = json.loads(nomad_job)
