@@ -176,8 +176,11 @@ def docker_image():
     repo_name = os.environ.get('DRONE_REPO_NAME')
     commit_sha = os.environ.get('DRONE_COMMIT')
 
-    if not repo_name or not commit_sha or len(commit_sha) < 7:
-        sys.exit(1)
+    if not repo_name:
+        sys.exit('Missing DRONE_REPO_NAME')
+
+    if not commit_sha or len(commit_sha) < 7:
+        sys.exit('Missing (or short) DRONE_COMMIT')
 
     return '{0}/{1}:{2}'.format(DOCKER_REPOSITORY_HOST, repo_name, commit_sha[:7])
 
@@ -193,22 +196,24 @@ def environment_variables(defaults, secrets):
 
 def application_port(configuration):
     try:
-        return configuration.get('deployment').get('nomad').get('port') or sys.exit(1)
+        return configuration.get('deployment').get('nomad').get('port') or sys.exit('Missing deployment.nomad.port in .repository-settings.yml')
     except:
-        sys.exit(1)
+        sys.exit('Missing deployment.nomad.port in .repository-settings.yml')
 
 
 def application_tags(configuration):
     try:
-        return configuration.get('deployment').get('nomad').get('tags') or sys.exit(1)
+        return configuration.get('deployment').get('nomad').get('tags') or sys.exit('Missing deployment.nomad.tags in .repository-settings.yml')
     except:
-        sys.exit(1)
+        sys.exit('Missing deployment.nomad.tags in .repository-settings.yml')
+
 
 def application_volumes(configuration):
     try:
         return configuration.get('deployment').get('nomad').get('volumes') or []
     except:
         return []
+
 
 def branch_name():
     return os.environ.get('DRONE_BRANCH') or sys.exit('Missing DRONE_BRANCH environment variable')
@@ -243,7 +248,7 @@ if __name__ == '__main__':
         secrets = []
 
     # make a sanity check
-    sanity_check(EXPECTED_ENVIRONMENT_VARIABLES + secrets) or sys.exit(1)
+    sanity_check(EXPECTED_ENVIRONMENT_VARIABLES + secrets) or sys.exit('sanity_check has failed')
 
     # populate configuration variables
     core_variables(JOB_DEFAULTS, configuration)
@@ -261,11 +266,11 @@ if __name__ == '__main__':
     try:
         nomad_job = json.loads(nomad_job)
     except:
-        sys.exit(1)
+        sys.exit('Invalid JSON in nomad job')
 
     r = requests.post(NOMAD_URL, json=nomad_job)
 
     if r.status_code != 200:
-        sys.exit(1)
+        sys.exit('Nomad job POST failed with http code {}'.format(r.status_code))
 
     notify()
