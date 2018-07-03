@@ -266,6 +266,7 @@ if __name__ == '__main__':
     try:
         parsed_job = json.loads(nomad_job)
     except Exception as e:
+        print(nomad_job)
         raise
 
     r = requests.post(NOMAD_URL, json=parsed_job)
