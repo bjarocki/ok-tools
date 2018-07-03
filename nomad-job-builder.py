@@ -265,9 +265,8 @@ if __name__ == '__main__':
     # verify if json is valid
     try:
         parsed_job = json.loads(nomad_job)
-    except:
-        print(nomad_job)
-        sys.exit('Invalid JSON in nomad job')
+    except Exception as e:
+        raise
 
     r = requests.post(NOMAD_URL, json=parsed_job)
 
