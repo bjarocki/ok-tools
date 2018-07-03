@@ -188,7 +188,7 @@ def docker_image():
 def environment_variables(defaults, secrets):
     try:
         for secret in secrets:
-            defaults['VARIABLES'][secret] = os.environ.get(secret)
+            defaults['VARIABLES'][secret] = os.environ.get(secret).strip()
         return True
     except:
         return False
@@ -261,9 +261,6 @@ if __name__ == '__main__':
 
     # render final nomad json job
     nomad_job = template.render(JOB_DEFAULTS)
-
-    # [debug] job content
-    print(nomad_job)
 
     # verify if json is valid
     try:
