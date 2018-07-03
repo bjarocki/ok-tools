@@ -264,11 +264,12 @@ if __name__ == '__main__':
 
     # verify if json is valid
     try:
-        nomad_job = json.loads(nomad_job)
+        parsed_job = json.loads(nomad_job)
     except:
+        print(nomad_job)
         sys.exit('Invalid JSON in nomad job')
 
-    r = requests.post(NOMAD_URL, json=nomad_job)
+    r = requests.post(NOMAD_URL, json=parsed_job)
 
     if r.status_code != 200:
         sys.exit('Nomad job POST failed with http code {}'.format(r.status_code))
