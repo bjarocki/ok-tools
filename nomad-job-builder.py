@@ -143,10 +143,10 @@ def docker_image():
     if not repo_name:
         sys.exit('Missing CI_PROJECT_NAME')
 
-    if not commit_sha or len(commit_sha) < 7:
+    if not commit_sha or len(commit_sha) < 8:
         sys.exit('Missing (or short) CI_COMMIT_SHA')
 
-    return '{0}/{1}:{2}'.format(DOCKER_REPOSITORY_HOST, repo_name, commit_sha[:7])
+    return '{0}/{1}:{2}'.format(DOCKER_REPOSITORY_HOST, repo_name, commit_sha[:8])
 
 
 def environment_variables(defaults, secrets):
