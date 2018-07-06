@@ -115,8 +115,8 @@ JOB_DEFAULTS = {
 }
 
 EXPECTED_ENVIRONMENT_VARIABLES = [
-  'DRONE_REPO_NAME',
-  'DRONE_COMMIT'
+  'CI_PROJECT_NAME',
+  'CI_COMMIT_SHA'
 ]
 
 CONFIGURATION_FILE = '.repository-settings.yml'
@@ -136,51 +136,15 @@ def sanity_check(variables):
         return False
 
 
-def notify():
-    slack_url = os.environ.get('SLACK_URL')
-    slack_channel = os.environ.get('SLACK_CHANNEL') or '#tech-ops'
-
-    if not slack_url:
-        return False
-
-    message = {
-      'channel': slack_channel,
-      'attachments': [
-        {
-          'color': '#4cc0b5',
-          'footer_icon': 'https://internal-ops.otwarte.xyz/ok-logo.png',
-          'footer': 'otwarte_klatki',
-          'text': "{0}\n\n<{1}|szczegóły zmiany tutaj>".format(os.environ.get('DRONE_COMMIT_MESSAGE'), os.environ.get('DRONE_COMMIT_LINK')),
-          'thumb_url': 'https://internal-ops.otwarte.xyz/rocket.png',
-          'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
-          'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
-          'ts': int(time())
-        }
-      ]
-    }
-
-    author_avatar = os.environ.get('DRONE_COMMIT_AUTHOR_AVATAR')
-
-    # let's add personal touch here
-    if author_avatar:
-        message['attachments'][0]['author_name'] = os.environ.get('DRONE_COMMIT_AUTHOR')
-        message['attachments'][0]['author_link'] = 'https://github.com/{}'.format(os.environ.get('DRONE_COMMIT_AUTHOR'))
-        message['attachments'][0]['author_icon'] = author_avatar
-
-    r = requests.post(slack_url, json=message)
-
-    return r.status_code == 200
-
-
 def docker_image():
-    repo_name = os.environ.get('DRONE_REPO_NAME')
-    commit_sha = os.environ.get('DRONE_COMMIT')
+    repo_name = os.environ.get('CI_PROJECT_NAME')
+    commit_sha = os.environ.get('CI_COMMIT_SHA')
 
     if not repo_name:
-        sys.exit('Missing DRONE_REPO_NAME')
+        sys.exit('Missing CI_PROJECT_NAME')
 
     if not commit_sha or len(commit_sha) < 7:
-        sys.exit('Missing (or short) DRONE_COMMIT')
+        sys.exit('Missing (or short) CI_COMMIT_SHA')
 
     return '{0}/{1}:{2}'.format(DOCKER_REPOSITORY_HOST, repo_name, commit_sha[:7])
 
@@ -216,12 +180,12 @@ def application_volumes(configuration):
 
 
 def branch_name():
-    return os.environ.get('DRONE_BRANCH') or sys.exit('Missing DRONE_BRANCH environment variable')
+    return os.environ.get('CI_BUILD_REF_NAME') or sys.exit('Missing CI_BUILD_REF_NAME environment variable')
 
 
 def core_variables(defaults, configuration):
-    service_name = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
-    service_id = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
+    service_name = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('CI_PROJECT_NAME'))
+    service_id = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('CI_PROJECT_NAME'))
 
     defaults['SERVICE_NAME'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', branch_name()), service_name)
     defaults['SERVICE_ID'] = '{0}_{1}'.format(re.sub('[^0-9a-zA-Z]+', '_', branch_name()), service_id)
@@ -273,5 +237,3 @@ if __name__ == '__main__':
 
     if r.status_code != 200:
         sys.exit('Nomad job POST failed with http code {}'.format(r.status_code))
-
-    notify()
