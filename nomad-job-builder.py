@@ -106,8 +106,8 @@ NOMAD_JOB_JINJA_TEMPLATE = """
 """
 
 JOB_DEFAULTS = {
-  'CPU': 256,
-  'RAM': 512,
+  'CPU': 128,
+  'RAM': 256,
   'DISK_SIZE': 500,
   'CONTAINERS': 1,
   'VARIABLES': {},
