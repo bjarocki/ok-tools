@@ -158,6 +158,13 @@ def environment_variables(defaults, secrets):
         return False
 
 
+def deployment_nomad_containers(configuration):
+    try:
+        return configuration.get('deployment').get('nomad').get('containers') or 1
+    except:
+        return 1
+
+
 def application_port(configuration):
     try:
         return configuration.get('deployment').get('nomad').get('port') or sys.exit('Missing deployment.nomad.port in .repository-settings.yml')
@@ -194,6 +201,7 @@ def core_variables(defaults, configuration):
     defaults['APPLICATION_TAGS'] = application_tags(configuration)
     defaults['DOCKER_IMAGE'] = docker_image()
     defaults['VOLUMES'] = application_volumes(configuration)
+    defaults['CONTAINERS'] = deployment_nomad_containers(configuration)
 
 
 if __name__ == '__main__':
