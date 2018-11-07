@@ -187,7 +187,7 @@ def application_volumes(configuration):
 
 
 def branch_name():
-    return os.environ.get('CI_BUILD_REF_NAME') or sys.exit('Missing CI_BUILD_REF_NAME environment variable')
+    return os.environ.get('DEPLOYMENT_NAME') or os.environ.get('CI_BUILD_REF_NAME') or sys.exit('Missing CI_BUILD_REF_NAME environment variable')
 
 
 def core_variables(defaults, configuration):
