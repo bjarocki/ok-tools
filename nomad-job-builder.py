@@ -135,6 +135,8 @@ def sanity_check(variables):
     except:
         return False
 
+def normalized_repo_name():
+    return os.environ.get('DRONE_REPO_NAME').lower()
 
 def notify():
     slack_url = os.environ.get('SLACK_URL')
@@ -152,8 +154,8 @@ def notify():
           'footer': 'otwarte_klatki',
           'text': "{0}\n\n<{1}|szczegóły zmiany tutaj>".format(os.environ.get('DRONE_COMMIT_MESSAGE'), os.environ.get('DRONE_COMMIT_LINK')),
           'thumb_url': 'https://internal-ops.otwarte.xyz/rocket.png',
-          'title': 'Aktualizacja {0} trafila na serwer'.format(os.environ.get('DRONE_REPO_NAME')),
-          'title_link': 'https://{0}.otwarte.xyz'.format(os.environ.get('DRONE_REPO_NAME')),
+          'title': 'Aktualizacja {0} trafila na serwer'.format(normalized_repo_name()),
+          'title_link': 'https://{0}.otwarte.xyz'.format(normalized_repo_name()),
           'ts': int(time())
         }
       ]
@@ -171,9 +173,8 @@ def notify():
 
     return r.status_code == 200
 
-
 def docker_image():
-    repo_name = os.environ.get('DRONE_REPO_NAME')
+    repo_name = normalized_repo_name()
     commit_sha = os.environ.get('DRONE_COMMIT')
 
     if not repo_name:
@@ -220,8 +221,8 @@ def branch_name():
 
 
 def core_variables(defaults, configuration):
-    service_name = re.sub('[^0-9a-zA-Z-]+', '-', os.environ.get('DRONE_REPO_NAME'))
-    service_id = re.sub('[^0-9a-zA-Z]+', '_', os.environ.get('DRONE_REPO_NAME'))
+    service_name = re.sub('[^0-9a-zA-Z-]+', '-', normalized_repo_name())
+    service_id = re.sub('[^0-9a-zA-Z]+', '_', normalized_repo_name())
 
     defaults['SERVICE_NAME'] = '{0}-{1}'.format(re.sub('[^0-9a-zA-Z-]+', '-', branch_name()), service_name)
     defaults['SERVICE_ID'] = '{0}_{1}'.format(re.sub('[^0-9a-zA-Z]+', '_', branch_name()), service_id)
